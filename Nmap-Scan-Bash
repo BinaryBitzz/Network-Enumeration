@@ -53,3 +53,5 @@ rm live_hosts.txt fast_port_scan.txt full_port_scan.txt service_detection.txt os
 
 echo "Network enumeration completed. Check $OUTPUT_FILE for the complete network map."
 
+# To make the script executable. chmod +x <your_script.sh>
+
