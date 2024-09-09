@@ -1,0 +1,13 @@
+Add-Content ginfo.txt "+++++++Local Users+++++++"
+Get-LocalUser >> ginfo.txt # gets local users
+Add-Content ginfo.txt "+++++++Local Groups+++++++"
+Get-LocalGroup >> ginfo.txt # gets local groups
+Add-Content ginfo.txt "+++++++Local Administrator Group Members+++++++"
+Get-LocalGroupMember Administrators >> ginfo.txt # gets members of administrators group
+Get-CimInstance -Classname Win32_Product | Select-Object Name >> ginfo.txt # gets installed software
+Get-Service | Select-Object Name, DisplayName, Status, StartType >> ginfo.txt #gets services
+Get-CimInstance -ClassName Win32_ComputerSystem | Select-Object Name, PrimaryOwnerName, Domain, TotalPhysicalMemory, Model, Manufacturer >> ginfo.txt # gets system information
+Get-NetTCPConnection |Select-Object CreationTime, LocalAddress, LocalPort, RemoteAddress, RemotePort, OwningPricess, State >> ginfo.txt # gets TCP connections
+Get-Process | Select-Object StartTime, ProcessName, Id, Path >> ginfo.txt # gets processes
+Get-ScheduledTask | Select-Object TaskName, TaskPath, Date, Author, Actions, Triggers, Description, State >> ginfo.txt # gets scheduled tasks
+Get-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\" >> ginfo.txt # gets running programs
