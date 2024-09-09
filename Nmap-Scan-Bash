@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Prompt the user to enter the network range
+read -p "Enter the network range to scan (e.g., 10.10.0.0/16): " NETWORK
+
+# Validate that the input is not empty
+if [ -z "$NETWORK" ]; then
+  echo "Error: No network range entered. Exiting."
+  exit 1
+fi
+
+# Define output file for results
+OUTPUT_FILE="network_map_${NETWORK//\//_}.txt"
+
+# Start the enumeration
+echo "Starting network enumeration of $NETWORK"
+echo "Results will be saved to $OUTPUT_FILE"
+echo "----------------------------------------"
+
+# Step 1: Discover live hosts in the network
+echo "Step 1: Discovering live hosts..."
+nmap -sn $NETWORK -oG - | awk '/Up$/{print $2}' > live_hosts.txt
+echo "Live hosts discovered:"
+cat live_hosts.txt
+
+# Step 2: Perform a fast port scan on discovered live hosts
+echo "Step 2: Scanning open ports on live hosts..."
+nmap -iL live_hosts.txt -T4 -F -oN fast_port_scan.txt
+echo "Fast port scan results saved to fast_port_scan.txt"
+
+# Step 3: Perform a full port scan on live hosts
+echo "Step 3: Scanning all ports on live hosts..."
+nmap -iL live_hosts.txt -p- -T4 --open -oN full_port_scan.txt
+echo "Full port scan results saved to full_port_scan.txt"
+
+# Step 4: Perform service version detection on open ports
+echo "Step 4: Detecting service versions on open ports..."
+nmap -iL live_hosts.txt -sV -oN service_detection.txt
+echo "Service version detection results saved to service_detection.txt"
+
+# Step 5: OS detection on live hosts
+echo "Step 5: Detecting operating systems on live hosts..."
+nmap -iL live_hosts.txt -O -oN os_detection.txt
+echo "OS detection results saved to os_detection.txt"
+
+# Step 6: Combine results into a single output file
+echo "Step 6: Combining all results into $OUTPUT_FILE..."
+cat fast_port_scan.txt full_port_scan.txt service_detection.txt os_detection.txt > $OUTPUT_FILE
+echo "Combined results saved to $OUTPUT_FILE"
+
+# Clean up intermediate files
+rm live_hosts.txt fast_port_scan.txt full_port_scan.txt service_detection.txt os_detection.txt
+
+echo "Network enumeration completed. Check $OUTPUT_FILE for the complete network map."
+
